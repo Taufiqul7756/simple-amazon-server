@@ -16,12 +16,19 @@ const client = new MongoClient(uri, {
 });
 client.connect((err) => {
   const products = client.db("amazonStore").collection("products");
+  console.log("Database connected");
+
   app.post("/addProduct", (req, res) => {
-    const product = req.body;
-    products.insertOne(product).then((res) => {
-      console.log(res);
+    const productsCollection = req.body;
+    console.log(productsCollection);
+    products.insertMany(productsCollection).then((result) => {
+      console.log(result.insertedCount);
+      res.send(result.insertedCount);
     });
   });
-});
 
+  app.get("/", (req, res) => {
+    res.send("Hello Amazon");
+  });
+});
 app.listen(port);
