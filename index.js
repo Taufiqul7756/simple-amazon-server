@@ -8,7 +8,7 @@ const uri = `mongodb+srv://${process.env.DB_User}:${process.env.DB_Pass}@cluster
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
-const port = 3001;
+const port = 3002;
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -27,8 +27,17 @@ client.connect((err) => {
     });
   });
 
-  app.get("/", (req, res) => {
+  app.get("", (req, res) => {
     res.send("Hello Amazon");
+  });
+
+  app.get("/products", (req, res) => {
+    productsCollection
+      .find({})
+      .limit(20)
+      .toArray((err, documents) => {
+        res.send(documents);
+      });
   });
 });
 app.listen(port);
