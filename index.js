@@ -8,20 +8,20 @@ const uri = `mongodb+srv://${process.env.DB_User}:${process.env.DB_Pass}@cluster
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
-const port = 3002;
+const port = 3001;
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
 client.connect((err) => {
-  const products = client.db("amazonStore").collection("products");
+  const productsCollection = client.db("amazonStore").collection("products");
   console.log("Database connected");
 
   app.post("/addProduct", (req, res) => {
-    const productsCollection = req.body;
-    console.log(productsCollection);
-    products.insertMany(productsCollection).then((result) => {
+    const products = req.body;
+    console.log(products);
+    productsCollection.insertMany(products).then((result) => {
       console.log(result.insertedCount);
       res.send(result.insertedCount);
     });
@@ -32,11 +32,16 @@ client.connect((err) => {
   });
 
   app.get("/products", (req, res) => {
+    productsCollection.find({}).toArray((err, documents) => {
+      res.send(documents);
+    });
+  });
+
+  app.get("/product/:key", (req, res) => {
     productsCollection
-      .find({})
-      .limit(20)
+      .find({ key: req.params.key })
       .toArray((err, documents) => {
-        res.send(documents);
+        res.send(documents[0]);
       });
   });
 });
